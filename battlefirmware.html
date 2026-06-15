@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokemon Battle</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#ececec;
+    font-family:Arial, sans-serif;
+}
+
+.container{
+    width:900px;
+    margin:40px auto;
+    border:3px solid #555;
+    padding:20px;
+    background:white;
+}
+
+h1{
+    color:#1e9ce5;
+    margin-bottom:20px;
+}
+
+.battle-box{
+    border:2px solid #666;
+    padding:30px;
+    position:relative;
+    min-height:400px;
+}
+
+.player{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.enemy{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:80px;
+}
+
+.card{
+    border:2px solid #666;
+    border-radius:10px;
+    padding:20px;
+    width:350px;
+}
+
+.name{
+    font-size:35px;
+    font-weight:bold;
+}
+
+.health{
+    background:lightgreen;
+    padding:8px 20px;
+    border-radius:20px;
+    display:inline-block;
+    margin-top:10px;
+}
+
+.enemy-health{
+    background:lightblue;
+}
+
+img{
+    width:180px;
+    height:180px;
+}
+
+.log{
+    margin-top:30px;
+}
+
+textarea{
+    width:100%;
+    height:100px;
+    padding:10px;
+    font-size:18px;
+    resize:none;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 25px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Battle Wireframe</h1>
+
+    <div class="battle-box">
+
+        <!-- Player -->
+        <div class="player">
+
+            <div class="card">
+                <div class="name" id="pokemon1Name">
+                    Loading...
+                </div>
+
+                <div class="health" id="pokemon1Hp">
+                    HP: 100
+                </div>
+            </div>
+
+            <img id="pokemon1Image" alt="pokemanimg">
+
+        </div>
+
+
+        <!-- Enemy -->
+        <div class="enemy">
+
+            <img id="pokemon2Image" alt="pokeimg2">
+
+            <div class="card">
+
+                <div class="name" id="pokemon2Name">
+                    Loading...
+                </div>
+
+                <div class="health enemy-health" id="pokemon2Hp">
+                    HP: 100
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="log">
+
+            <h2>Battle Log</h2>
+            <label for="battleLog">Click to Start Battle</label>
+            <textarea id="battleLog" readonly>
+Click Start Battle!
+            </textarea>
+
+            <button onclick="startBattle()">
+                Start Battle
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let pokemon1 = {};
+let pokemon2 = {};
+
+let hp1 = 100;
+let hp2 = 100;
+
+
+async function fetchPokemon(name){
+
+    let response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${name}`
+    );
+
+    let data = await response.json();
+
+    return data;
+}
+
+
+async function loadPokemon(){
+
+    pokemon1 = await fetchPokemon("pidgey");
+    pokemon2 = await fetchPokemon("diglett");
+
+    document.getElementById("pokemon1Name")
+    .innerText = pokemon1.name;
+
+    document.getElementById("pokemon2Name")
+    .innerText = pokemon2.name;
+
+    document.getElementById("pokemon1Image")
+    .src = pokemon1.sprites.front_default;
+
+    document.getElementById("pokemon2Image")
+    .src = pokemon2.sprites.front_default;
+}
+
+loadPokemon();
+
+
+function startBattle(){
+
+    if(hp1 <= 0 || hp2 <= 0){
+        return;
+    }
+
+    let damage1 =
+    Math.floor(Math.random()*20)+10;
+
+    let damage2 =
+    Math.floor(Math.random()*20)+10;
+
+    hp2 -= damage1;
+    hp1 -= damage2;
+
+    if(hp1 < 0) hp1 = 0;
+    if(hp2 < 0) hp2 = 0;
+
+    document.getElementById("pokemon1Hp")
+    .innerText = `HP: ${hp1}`;
+
+    document.getElementById("pokemon2Hp")
+    .innerText = `HP: ${hp2}`;
+
+    let log =
+    `${pokemon1.name} attacks ${pokemon2.name} for ${damage1} damage!\n
+${pokemon2.name} attacks ${pokemon1.name} for ${damage2} damage!`;
+
+    if(hp1 === 0){
+        log += `\n${pokemon2.name} Wins!`;
+    }
+
+    if(hp2 === 0){
+        log += `\n${pokemon1.name} Wins!`;
+    }
+
+    document.getElementById("battleLog")
+    .value = log;
+}
+
+</script>
+
+</body>
+</html>
